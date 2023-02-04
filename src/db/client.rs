@@ -1,7 +1,5 @@
-use std::error::Error;
 use redis;
-use redis::{ConnectionLike, RedisError, RedisResult};
-use redis::Commands;
+use redis::{ConnectionLike, RedisError};
 
 
 // TODO: switch to the async api
@@ -11,6 +9,5 @@ pub fn create_client() -> Result<redis::Connection, RedisError> {
 
     let result = con.is_open();
     println!("is open: {}", result);
-
-    return Ok(con);
+    Ok(con)
 }

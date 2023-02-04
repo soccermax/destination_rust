@@ -1,20 +1,13 @@
+use std::string::ToString;
 use redis;
-use redis::{RedisError};
 use redis::Commands;
 use crate::db::client::create_client;
 use serde_json::json;
 use uuid::Uuid;
 use anyhow;
-use crate::db::error::{DestinationError};
 
 use super::super::model::destination::{Destination, Authentication, Protocol};
 use super::client;
-use super::error;
-
-enum RedisKeys {
-    DESTINATIONS
-}
-
 
 pub fn create_destination(mut new_destination: Destination)
                           -> anyhow::Result<Destination> {
@@ -33,13 +26,13 @@ pub fn create_destination(mut new_destination: Destination)
         anyhow::bail!("it failed!")
     }
 
-    connection.set("DESTINATIONS", all_destinations.to_string())?;
+    connection.set("DESTINATION", all_destinations.to_string())?;
 
     Ok(Destination {
         id: None,
         authentication: Some(Authentication::BasicAuth),
         name: String::from("test"),
-        protocol: Protocol::HTTP,
+        protocol: Protocol::Http,
         port: 8080,
         url: String::from("test"),
     })
@@ -51,7 +44,7 @@ pub fn get_all() -> anyhow::Result<serde_json::Value> {
     //     Some(c) => c,
     //     None => create_client()?
     // };
-    let all_destinations: redis::Value = con.get("DESTINATIONS")?;
+    let all_destinations: redis::Value = con.get("DESTINATION")?;
 
     if all_destinations == redis::Value::Nil {
         return Ok(json!({}));

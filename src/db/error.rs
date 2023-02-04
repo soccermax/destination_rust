@@ -3,35 +3,13 @@ use axum::{
     response::{IntoResponse, Response},
 };
 
-use thiserror::Error;
-
-#[derive(Error, Debug)]
-pub enum DestinationError {
-    /// Represents an empty source. For example, an empty text file being given
-    /// as input to `count_words()`.
-    #[error("the destination already exists")]
-    AlreadyExists {},
-
-    /// Represents a failure to read from input.
-    #[error("Read error")]
-    ReadError { source: std::io::Error },
-
-    /// Represents all other cases of `std::io::Error`.
-    #[error(transparent)]
-    IOError(#[from] std::io::Error),
-}
-
-impl DestinationError {
-    const STATUS_CODE: StatusCode = StatusCode::CONFLICT;
-}
-
 pub struct AppError(anyhow::Error);
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         (
             StatusCode::CONFLICT,
-            format!("the destination already exists"),
+            "the destination already exists",
         )
             .into_response()
     }
@@ -46,15 +24,37 @@ impl<E> From<E> for AppError
     }
 }
 
-impl IntoResponse for DestinationError {
-    fn into_response(self) -> Response {
-        (
-            StatusCode::CONFLICT,
-            format!("The destination already exists"),
-        )
-            .into_response()
-    }
-}
+
+
+// #[derive(Error, Debug)]
+// pub enum DestinationError {
+//     /// Represents an empty source. For example, an empty text file being given
+//     /// as input to `count_words()`.
+//     #[error("the destination already exists")]
+//     AlreadyExists {},
+//
+//     /// Represents a failure to read from input.
+//     #[error("Read error")]
+//     ReadError { source: std::io::Error },
+//
+//     /// Represents all other cases of `std::io::Error`.
+//     #[error(transparent)]
+//     IOError(#[from] std::io::Error),
+// }
+//
+// impl DestinationError {
+//     const STATUS_CODE: StatusCode = StatusCode::CONFLICT;
+// }
+//
+// impl IntoResponse for DestinationError {
+//     fn into_response(self) -> Response {
+//         (
+//             StatusCode::CONFLICT,
+//             format!("The destination already exists"),
+//         )
+//             .into_response()
+//     }
+// }
 
 
 // This enables using `?` on functions that return `Result<_, anyhow::Error>` to turn them into

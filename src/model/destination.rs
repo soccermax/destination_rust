@@ -13,7 +13,7 @@ pub struct Destination {
 
 #[derive(Serialize, Deserialize)]
 pub enum Protocol {
-  HTTP
+  Http
 }
 
 #[derive(Serialize, Deserialize, Debug)]
