@@ -4,10 +4,21 @@ use axum::{
     Json
 };
 use serde_json::json;
+use crate::db::error::DbError;
 
 #[derive(Debug)]
 pub enum DestinationError {
-    AlreadyExists { name: String }
+    AlreadyExists { name: String },
+    InternalServerError,
+}
+
+impl From<DbError> for DestinationError {
+    fn from(value: DbError) -> Self {
+        match value {
+            DbError::NotReachable {} => DestinationError::InternalServerError,
+            DbError::AlreadyExists {name } => DestinationError::AlreadyExists {name }
+        }
+    }
 }
 
 impl IntoResponse for DestinationError {
@@ -15,6 +26,9 @@ impl IntoResponse for DestinationError {
         let (status, error_message) = match self {
             DestinationError::AlreadyExists{name} => {
                 (StatusCode::CONFLICT, format!("The destination with the name: '{}' already exists", name))
+            }
+            DestinationError::InternalServerError => {
+                (StatusCode::INTERNAL_SERVER_ERROR, String::from("Internal Server Error"))
             }
             // AppError::UserRepo(UserRepoError::InvalidUsername) => {
             //     (StatusCode::UNPROCESSABLE_ENTITY, "Invalid username")

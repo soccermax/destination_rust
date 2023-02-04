@@ -4,13 +4,13 @@ use redis::Commands;
 use crate::db::client::create_client;
 use serde_json::json;
 use uuid::Uuid;
-use anyhow;
 
-use super::super::model::destination::{Destination, Authentication, Protocol};
-use super::client;
+use crate::model::destination::{Destination, Authentication, Protocol};
+use crate::db::client;
+use crate::db::error;
 
 pub fn create_destination(mut new_destination: Destination)
-                          -> anyhow::Result<Destination> {
+                          -> Result<Destination, error::DbError> {
     let mut connection = client::create_client()?;
 
     let mut all_destinations = get_all()?;
@@ -23,7 +23,7 @@ pub fn create_destination(mut new_destination: Destination)
         new_destination.id = Some(Uuid::new_v4().to_string());
         all_destinations[&new_destination.name] = serde_json::to_value(&new_destination).unwrap();
     } else {
-        anyhow::bail!("it failed!")
+       return Err(error::DbError::AlreadyExists {name: new_destination.name});
     }
 
     connection.set("DESTINATION", all_destinations.to_string())?;
@@ -38,18 +38,14 @@ pub fn create_destination(mut new_destination: Destination)
     })
 }
 
-pub fn get_all() -> anyhow::Result<serde_json::Value> {
+pub fn get_all() -> Result<serde_json::Value, error::DbError> {
     let mut con = create_client()?;
-    // let mut con = match connection {
-    //     Some(c) => c,
-    //     None => create_client()?
-    // };
-    let all_destinations: redis::Value = con.get("DESTINATION")?;
+    let all_destinations: redis::Value = con.get("DESTINATION").unwrap();
 
     if all_destinations == redis::Value::Nil {
         return Ok(json!({}));
     }
-    let string: String = redis::from_redis_value(&all_destinations)?;
+    let string: String = redis::from_redis_value(&all_destinations).unwrap();
     Ok(serde_json::from_str(&string).unwrap())
 }
 
