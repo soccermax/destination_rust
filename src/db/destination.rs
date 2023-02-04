@@ -1,12 +1,10 @@
-use crate::db::client::create_client;
-use redis;
+use super::create_client;
+use super::error;
+use crate::model::destination::{Authentication, Destination, Protocol};
 use redis::Commands;
 use serde_json::json;
 use std::string::ToString;
 use uuid::Uuid;
-
-use crate::db::error;
-use crate::model::destination::{Authentication, Destination, Protocol};
 
 pub fn create_destination(mut new_destination: Destination) -> Result<Destination, error::DbError> {
     let mut connection = create_client()?;

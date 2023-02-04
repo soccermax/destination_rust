@@ -1,4 +1,3 @@
-use redis;
 use redis::{ConnectionLike, RedisError};
 
 // TODO: switch to the async api

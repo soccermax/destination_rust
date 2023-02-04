@@ -1,4 +1,3 @@
-use crate::db::error::DbError::NotReachable;
 use redis::RedisError;
 
 #[derive(Debug)]
@@ -10,6 +9,6 @@ pub enum DbError {
 impl From<RedisError> for DbError {
     fn from(value: RedisError) -> Self {
         println!("db error: {:?}", value);
-        NotReachable {}
+        Self::NotReachable {}
     }
 }

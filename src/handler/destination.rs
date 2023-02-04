@@ -1,8 +1,7 @@
-use axum::{http::StatusCode, response::IntoResponse, Json};
-
+use super::error;
 use crate::db::destination;
-use crate::handler::error;
-use crate::model::destination::Destination;
+use crate::model::Destination;
+use axum::{http::StatusCode, response::IntoResponse, Json};
 
 // basic handler that responds with a static string
 pub async fn root() -> &'static str {
