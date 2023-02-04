@@ -1,3 +1,3 @@
-pub use destination::Destination;
+pub use destination::{Authentication, Destination, Protocol};
 
 pub mod destination;

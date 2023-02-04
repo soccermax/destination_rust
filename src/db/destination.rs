@@ -1,6 +1,6 @@
 use super::create_client;
 use super::error;
-use crate::model::destination::{Authentication, Destination, Protocol};
+use crate::model::{Authentication, Destination, Protocol};
 use redis::Commands;
 use serde_json::json;
 use std::string::ToString;
