@@ -9,5 +9,8 @@ pub fn initialize() -> Router {
     Router::new()
         .route("/", get(destination::root))
         .route("/destination", post(destination::create_destination))
-        .route("/destination", get(destination::get_destination))
+        .route(
+            "/destination/:destination_name",
+            get(destination::get_destination),
+        )
 }

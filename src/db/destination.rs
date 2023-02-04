@@ -5,9 +5,8 @@ use serde_json::{json, Map, Value};
 use std::string::ToString;
 use uuid::Uuid;
 
-use crate::db::client;
 use crate::db::error;
-use crate::model::destination::{Authentication, Destination, Protocol};
+use crate::model::destination::Destination;
 
 pub fn create_destination(mut new_destination: Destination) -> Result<Destination, error::DbError> {
     let mut connection = create_client()?;

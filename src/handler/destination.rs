@@ -1,4 +1,4 @@
-use axum::{http::StatusCode, response::IntoResponse, Json};
+use axum::{extract::Path, http::StatusCode, response::IntoResponse, Json};
 
 use crate::db::destination;
 use crate::handler::error;
@@ -31,8 +31,10 @@ pub async fn create_destination(
     }
 }
 
-pub async fn get_destination() -> Result<impl IntoResponse, error::ApirError> {
-    let create_des_result = destination::get_destination(String::from("max3"));
+pub async fn get_destination(
+    Path(destination_name): Path<String>,
+) -> Result<impl IntoResponse, error::ApirError> {
+    let create_des_result = destination::get_destination(destination_name);
 
     match create_des_result {
         Ok(destination) => Ok((StatusCode::OK, Json(destination))),
