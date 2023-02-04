@@ -19,7 +19,7 @@ pub async fn create_destination(
     // as JSON into a `CreateUser` type
     Json(payload): Json<Destination>,
 // ) -> impl IntoResponse {
-) -> Result<impl IntoResponse, error::DestinationError> {
+) -> Result<impl IntoResponse, error::ApirError> {
     let destination = Destination {
         id: None,
          name: payload.name,

@@ -7,27 +7,27 @@ use serde_json::json;
 use crate::db::error::DbError;
 
 #[derive(Debug)]
-pub enum DestinationError {
+pub enum ApirError {
     AlreadyExists { name: String },
     InternalServerError,
 }
 
-impl From<DbError> for DestinationError {
+impl From<DbError> for ApirError {
     fn from(value: DbError) -> Self {
         match value {
-            DbError::NotReachable {} => DestinationError::InternalServerError,
-            DbError::AlreadyExists {name } => DestinationError::AlreadyExists {name }
+            DbError::NotReachable {} => ApirError::InternalServerError,
+            DbError::AlreadyExists {name } => ApirError::AlreadyExists {name }
         }
     }
 }
 
-impl IntoResponse for DestinationError {
+impl IntoResponse for ApirError {
     fn into_response(self) -> Response {
         let (status, error_message) = match self {
-            DestinationError::AlreadyExists{name} => {
+            ApirError::AlreadyExists{name} => {
                 (StatusCode::CONFLICT, format!("The destination with the name: '{}' already exists", name))
             }
-            DestinationError::InternalServerError => {
+            ApirError::InternalServerError => {
                 (StatusCode::INTERNAL_SERVER_ERROR, String::from("Internal Server Error"))
             }
             // AppError::UserRepo(UserRepoError::InvalidUsername) => {
