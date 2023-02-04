@@ -13,7 +13,6 @@ pub async fn create_destination(
     // this argument tells axum to parse the request body
     // as JSON into a `CreateUser` type
     Json(payload): Json<Destination>,
-    // ) -> impl IntoResponse {
 ) -> Result<impl IntoResponse, error::ApirError> {
     let destination = Destination {
         id: None,
@@ -32,8 +31,7 @@ pub async fn create_destination(
     }
 }
 
-pub async fn get_destination(// ) -> impl IntoResponse {
-) -> Result<impl IntoResponse, error::ApirError> {
+pub async fn get_destination() -> Result<impl IntoResponse, error::ApirError> {
     let create_des_result = destination::get_destination(String::from("max3"));
 
     match create_des_result {
