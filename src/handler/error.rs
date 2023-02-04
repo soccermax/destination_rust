@@ -10,6 +10,7 @@ use serde_json::json;
 pub enum ApirError {
     AlreadyExists { name: String },
     InternalServerError,
+    NotFound,
 }
 
 impl From<DbError> for ApirError {
@@ -17,6 +18,7 @@ impl From<DbError> for ApirError {
         match value {
             DbError::NotReachable {} => ApirError::InternalServerError,
             DbError::AlreadyExists { name } => ApirError::AlreadyExists { name },
+            DbError::NotFound => ApirError::NotFound,
         }
     }
 }
@@ -32,6 +34,7 @@ impl IntoResponse for ApirError {
                 StatusCode::INTERNAL_SERVER_ERROR,
                 String::from("Internal Server Error"),
             ),
+            ApirError::NotFound => (StatusCode::NOT_FOUND, String::from("Not found")),
         };
         let body = Json(json!({
             "errorMessage": error_message,

@@ -3,8 +3,9 @@ use redis::RedisError;
 
 #[derive(Debug)]
 pub enum DbError {
-    NotReachable {},
+    NotReachable,
     AlreadyExists { name: String },
+    NotFound,
 }
 
 impl From<RedisError> for DbError {

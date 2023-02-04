@@ -31,3 +31,13 @@ pub async fn create_destination(
         Err(err) => Err(err.into()),
     }
 }
+
+pub async fn get_destination(// ) -> impl IntoResponse {
+) -> Result<impl IntoResponse, error::ApirError> {
+    let create_des_result = destination::get_destination(String::from("max3"));
+
+    match create_des_result {
+        Ok(destination) => Ok((StatusCode::OK, Json(destination))),
+        Err(err) => Err(err.into()),
+    }
+}
