@@ -8,16 +8,16 @@ pub struct Destination {
     pub protocol: Protocol,
     pub port: i32,
     pub url: String,
-    pub authentication: Option<Authentication>
+    pub authentication: Option<Authentication>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub enum Protocol {
-  Http
+    Http,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Authentication {
     BasicAuth,
-    OAuth2
+    OAuth2,
 }

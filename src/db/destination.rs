@@ -1,16 +1,14 @@
-use std::string::ToString;
+use crate::db::client::create_client;
 use redis;
 use redis::Commands;
-use crate::db::client::create_client;
 use serde_json::json;
+use std::string::ToString;
 use uuid::Uuid;
 
-use crate::model::destination::{Destination, Authentication, Protocol};
-use crate::db::client;
 use crate::db::error;
+use crate::model::destination::{Authentication, Destination, Protocol};
 
-pub fn create_destination(mut new_destination: Destination)
-                          -> Result<Destination, error::DbError> {
+pub fn create_destination(mut new_destination: Destination) -> Result<Destination, error::DbError> {
     let mut connection = create_client()?;
     let mut all_destinations = get_all()?;
     let existing_destination = &all_destinations[&new_destination.name];
@@ -18,7 +16,9 @@ pub fn create_destination(mut new_destination: Destination)
         new_destination.id = Some(Uuid::new_v4().to_string());
         all_destinations[&new_destination.name] = serde_json::to_value(&new_destination).unwrap();
     } else {
-       return Err(error::DbError::AlreadyExists {name: new_destination.name});
+        return Err(error::DbError::AlreadyExists {
+            name: new_destination.name,
+        });
     }
     connection.set("DESTINATION", all_destinations.to_string())?;
     Ok(Destination {

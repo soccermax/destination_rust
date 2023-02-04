@@ -1,10 +1,10 @@
+use crate::handler::destination;
 use axum::{
     routing::{get, post},
     Router,
 };
-use crate::handler::destination;
 
-pub fn initialize() -> Router  {
+pub fn initialize() -> Router {
     // build our application with a route
     Router::new()
         .route("/", get(destination::root))

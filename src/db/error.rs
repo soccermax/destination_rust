@@ -1,10 +1,10 @@
-use redis::RedisError;
 use crate::db::error::DbError::NotReachable;
+use redis::RedisError;
 
 #[derive(Debug)]
 pub enum DbError {
-    NotReachable { },
-    AlreadyExists { name: String }
+    NotReachable {},
+    AlreadyExists { name: String },
 }
 
 impl From<RedisError> for DbError {
