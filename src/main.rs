@@ -1,9 +1,9 @@
 use std::net::SocketAddr;
 
-pub mod db;
-pub mod handler;
-pub mod model;
-pub mod router;
+mod db;
+mod handler;
+mod model;
+mod router;
 
 #[tokio::main]
 async fn main() {
