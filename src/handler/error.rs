@@ -11,6 +11,7 @@ pub enum ApirError {
     AlreadyExists { name: String },
     InternalServerError,
     NotFound,
+    Conflict,
 }
 
 impl From<DbError> for ApirError {
@@ -19,6 +20,7 @@ impl From<DbError> for ApirError {
             DbError::NotReachable {} => ApirError::InternalServerError,
             DbError::AlreadyExists { name } => ApirError::AlreadyExists { name },
             DbError::NotFound => ApirError::NotFound,
+            DbError::Conflict => ApirError::Conflict,
         }
     }
 }
@@ -35,6 +37,7 @@ impl IntoResponse for ApirError {
                 String::from("Internal Server Error"),
             ),
             ApirError::NotFound => (StatusCode::NOT_FOUND, String::from("Not found")),
+            ApirError::Conflict => (StatusCode::CONFLICT, String::from("Conflict")),
         };
         let body = Json(json!({
             "errorMessage": error_message,

@@ -10,11 +10,15 @@ use crate::model::destination::Destination;
 
 pub fn create_destination(mut new_destination: Destination) -> Result<Destination, error::DbError> {
     let mut connection = create_client()?;
-    let mut all_destinations = get_all_map()?;
+    require_lock(&mut connection)?;
+    let mut all_destinations = get_all_map(&mut connection)?;
     match all_destinations.contains_key(&new_destination.name) {
-        true => Err(error::DbError::AlreadyExists {
-            name: new_destination.name,
-        }),
+        true => {
+            release_lock(&mut connection)?;
+            Err(error::DbError::AlreadyExists {
+                name: new_destination.name,
+            })
+        }
         false => {
             let destination_name = new_destination.name.to_string();
             new_destination.id = Some(Uuid::new_v4().to_string());
@@ -26,15 +30,47 @@ pub fn create_destination(mut new_destination: Destination) -> Result<Destinatio
             )?;
             let test = all_destinations.remove(&destination_name).unwrap();
             let result: Destination = serde_json::from_value(test).unwrap();
+            release_lock(&mut connection)?;
             Ok(result)
         }
     }
 }
 
-fn get_all_map() -> Result<Map<String, Value>, error::DbError> {
-    let mut con = create_client()?;
-    let all_destinations: redis::Value = con.get("DESTINATION").unwrap();
+fn require_lock(con: &mut redis::Connection) -> Result<bool, error::DbError> {
+    let test: redis::Value = con.set_nx("DESTINATION_LOCK", "LOCK")?;
+    let result: u8 = redis::from_redis_value(&test).unwrap();
 
+    return match result {
+        0 => Err(error::DbError::Conflict),
+        1 => {
+            let result_expire: redis::Value = con.expire("DESTINATION_LOCK", 10)?;
+            match redis::from_redis_value(&result_expire).unwrap() {
+                1 => Ok(true),
+                _ => panic!("the world burns"),
+            }
+        }
+        _ => panic!("the world burns"),
+    };
+}
+
+fn release_lock(con: &mut redis::Connection) -> Result<(), error::DbError> {
+    let test: redis::Value = con.del("DESTINATION_LOCK")?;
+    let result: u8 = redis::from_redis_value(&test).unwrap();
+    return match result {
+        0 => Err(error::DbError::Conflict),
+        1 => {
+            let result_expire: redis::Value = con.expire("DESTINATION_LOCK", 10)?;
+            match redis::from_redis_value(&result_expire).unwrap() {
+                0 => Ok(()),
+                _ => panic!("the world burns"),
+            }
+        }
+        _ => panic!("the world burns"),
+    };
+}
+
+fn get_all_map(con: &mut redis::Connection) -> Result<Map<String, Value>, error::DbError> {
+    let all_destinations: redis::Value = con.get("DESTINATION")?;
     if all_destinations == redis::Value::Nil {
         return Ok(Map::new());
     }
@@ -46,7 +82,8 @@ fn get_all_map() -> Result<Map<String, Value>, error::DbError> {
 }
 
 pub fn get_all() -> Result<Vec<Destination>, error::DbError> {
-    let map = get_all_map()?;
+    let mut connection = create_client()?;
+    let map = get_all_map(&mut connection)?;
     let destinations = map
         .iter()
         .map(|(_, value)| serde_json::from_value(value.clone()).unwrap())
@@ -55,7 +92,8 @@ pub fn get_all() -> Result<Vec<Destination>, error::DbError> {
 }
 
 pub fn get_destination(name: String) -> Result<Destination, error::DbError> {
-    let mut all_destinations = get_all_map()?;
+    let mut connection = create_client()?;
+    let mut all_destinations = get_all_map(&mut connection)?;
     match all_destinations.remove(&name) {
         Some(destination) => {
             let test: Destination = serde_json::from_value(destination).unwrap();
@@ -66,7 +104,9 @@ pub fn get_destination(name: String) -> Result<Destination, error::DbError> {
 }
 
 pub fn delete_destination(name: String) -> Result<(), error::DbError> {
-    let mut all_destinations = get_all_map()?;
+    let mut connection = create_client()?;
+    require_lock(&mut connection)?;
+    let mut all_destinations = get_all_map(&mut connection)?;
     match all_destinations.contains_key(&name) {
         true => {
             all_destinations.remove(&name);
@@ -75,8 +115,12 @@ pub fn delete_destination(name: String) -> Result<(), error::DbError> {
                 "DESTINATION",
                 serde_json::to_string(&all_destinations).expect("TODO: panic message"),
             )?;
+            release_lock(&mut connection)?;
             Ok(())
         }
-        false => Err(error::DbError::NotFound),
+        false => {
+            release_lock(&mut connection)?;
+            Err(error::DbError::NotFound)
+        }
     }
 }

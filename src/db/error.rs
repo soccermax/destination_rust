@@ -6,6 +6,7 @@ pub enum DbError {
     NotReachable,
     AlreadyExists { name: String },
     NotFound,
+    Conflict,
 }
 
 impl From<RedisError> for DbError {
