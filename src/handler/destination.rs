@@ -41,3 +41,12 @@ pub async fn get_destination(
         Err(err) => Err(err.into()),
     }
 }
+
+pub async fn get_destinations() -> Result<impl IntoResponse, error::ApirError> {
+    let create_des_result = destination::get_all();
+
+    match create_des_result {
+        Ok(destination) => Ok((StatusCode::OK, Json(destination))),
+        Err(err) => Err(err.into()),
+    }
+}

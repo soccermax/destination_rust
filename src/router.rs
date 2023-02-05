@@ -13,4 +13,5 @@ pub fn initialize() -> Router {
             "/destination/:destination_name",
             get(destination::get_destination),
         )
+        .route("/destination", get(destination::get_destinations))
 }
