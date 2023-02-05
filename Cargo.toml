@@ -16,3 +16,8 @@ axum = "0.6.1"
 uuid = { version = "1.2.2", features = ["v4"]  }
 anyhow = "1.0.68"
 thiserror = "1.0.38"
+
+[dev-dependencies]
+tower = "0.4.13"
+hyper = "0.14.24"
+mockall = "0.11.3"

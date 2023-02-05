@@ -1,6 +1,6 @@
 use crate::handler::destination;
 use axum::{
-    routing::{get, post},
+    routing::{delete, get, post},
     Router,
 };
 
@@ -14,4 +14,8 @@ pub fn initialize() -> Router {
             get(destination::get_destination),
         )
         .route("/destination", get(destination::get_destinations))
+        .route(
+            "/destination/:destination_name",
+            delete(destination::delete_destination),
+        )
 }

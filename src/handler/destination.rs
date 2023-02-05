@@ -50,3 +50,12 @@ pub async fn get_destinations() -> Result<impl IntoResponse, error::ApirError> {
         Err(err) => Err(err.into()),
     }
 }
+
+pub async fn delete_destination(
+    Path(destination_name): Path<String>,
+) -> Result<impl IntoResponse, error::ApirError> {
+    match destination::delete_destination(destination_name) {
+        Ok(_) => Ok(StatusCode::NO_CONTENT),
+        Err(err) => Err(err.into()),
+    }
+}
