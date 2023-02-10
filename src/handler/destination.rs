@@ -12,20 +12,20 @@ pub async fn get_destinations() -> Result<impl IntoResponse, error::ApirError> {
 pub async fn create_destination(
     Json(payload): Json<Destination>,
 ) -> Result<impl IntoResponse, error::ApirError> {
-    let new_destination = destination::create_destination(payload)?;
+    let new_destination = destination::create(payload)?;
     Ok((StatusCode::CREATED, Json(new_destination)))
 }
 
 pub async fn get_destination(
     Path(destination_name): Path<String>,
 ) -> Result<impl IntoResponse, error::ApirError> {
-    let destination = destination::get_destination(destination_name)?;
+    let destination = destination::get(destination_name)?;
     Ok((StatusCode::CREATED, Json(destination)))
 }
 
 pub async fn delete_destination(
     Path(destination_name): Path<String>,
 ) -> Result<impl IntoResponse, error::ApirError> {
-    destination::delete_destination(destination_name)?;
+    destination::delete(destination_name)?;
     Ok(StatusCode::NO_CONTENT)
 }

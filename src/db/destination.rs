@@ -8,7 +8,7 @@ use uuid::Uuid;
 use crate::db::error;
 use crate::model::destination::Destination;
 
-pub fn create_destination(mut new_destination: Destination) -> Result<Destination, error::DbError> {
+pub fn create(mut new_destination: Destination) -> Result<Destination, error::DbError> {
     let mut connection = create_client()?;
     require_lock(&mut connection)?;
     let mut all_destinations = get_all_map(&mut connection)?;
@@ -91,7 +91,7 @@ pub fn get_all() -> Result<Vec<Destination>, error::DbError> {
     Ok(destinations)
 }
 
-pub fn get_destination(name: String) -> Result<Destination, error::DbError> {
+pub fn get(name: String) -> Result<Destination, error::DbError> {
     let mut connection = create_client()?;
     let mut all_destinations = get_all_map(&mut connection)?;
     match all_destinations.remove(&name) {
@@ -103,7 +103,7 @@ pub fn get_destination(name: String) -> Result<Destination, error::DbError> {
     }
 }
 
-pub fn delete_destination(name: String) -> Result<(), error::DbError> {
+pub fn delete(name: String) -> Result<(), error::DbError> {
     let mut connection = create_client()?;
     require_lock(&mut connection)?;
     let mut all_destinations = get_all_map(&mut connection)?;
