@@ -10,7 +10,7 @@ mod router;
 #[tokio::main]
 async fn main() {
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
-    let app = router::initialize();
+    let app = router::initialize().await;
     println!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())

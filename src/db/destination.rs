@@ -1,6 +1,6 @@
 use crate::db::client::create_client;
 use redis;
-use redis::Commands;
+use redis::{AsyncCommands, Commands};
 use serde_json::{Map, Value};
 use std::string::ToString;
 use uuid::Uuid;
@@ -81,6 +81,20 @@ fn get_all_map(con: &mut redis::Connection) -> Result<Map<String, Value>, error:
     Ok(map)
 }
 
+async fn get_all_map_async(
+    connection_manager: &mut redis::aio::ConnectionManager,
+) -> Result<Map<String, Value>, error::DbError> {
+    let all_destinations: redis::Value = connection_manager.get("DESTINATION").await?;
+    if all_destinations == redis::Value::Nil {
+        return Ok(Map::new());
+    }
+
+    let string: String = redis::from_redis_value(&all_destinations).unwrap();
+    let result: Value = serde_json::from_str(&string).unwrap();
+    let map: Map<String, Value> = result.as_object().unwrap().clone();
+    Ok(map)
+}
+
 pub fn get_all() -> Result<Vec<Destination>, error::DbError> {
     let mut connection = create_client()?;
     let map = get_all_map(&mut connection)?;
@@ -94,6 +108,20 @@ pub fn get_all() -> Result<Vec<Destination>, error::DbError> {
 pub fn get(name: String) -> Result<Destination, error::DbError> {
     let mut connection = create_client()?;
     let mut all_destinations = get_all_map(&mut connection)?;
+    match all_destinations.remove(&name) {
+        Some(destination) => {
+            let test: Destination = serde_json::from_value(destination).unwrap();
+            Ok(test)
+        }
+        None => Err(error::DbError::NotFound),
+    }
+}
+
+pub async fn getV2(
+    mut connection_manager: redis::aio::ConnectionManager,
+    name: String,
+) -> Result<Destination, error::DbError> {
+    let mut all_destinations = get_all_map_async(&mut connection_manager).await?;
     match all_destinations.remove(&name) {
         Some(destination) => {
             let test: Destination = serde_json::from_value(destination).unwrap();
