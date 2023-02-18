@@ -10,16 +10,19 @@ use crate::auth;
 use crate::db::destination;
 use crate::model::Destination;
 
-pub async fn get_all() -> Result<impl IntoResponse, error::ApirError> {
-    let destinations = destination::get_all()?;
+pub async fn get_all(
+    app_context: State<auth::app_context::AppContext>,
+) -> Result<impl IntoResponse, error::ApirError> {
+    let destinations = destination::get_all(app_context).await?;
     Ok((StatusCode::OK, Json(destinations)))
 }
 
 pub async fn get_all_auth(
-    _state: State<auth::app_context::AppContext>,
-    _claims: auth::auth::Claims,
+    app_context: State<auth::app_context::AppContext>,
+    claims: auth::auth::Claims,
 ) -> Result<impl IntoResponse, error::ApirError> {
-    let destinations = destination::get_all()?;
+    println!("received token: subdomain: {}", claims.ext_attr.zdn);
+    let destinations = destination::get_all(app_context).await?;
     Ok((StatusCode::OK, Json(destinations)))
 }
 

@@ -23,8 +23,8 @@ pub struct Claims {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CustomAttributes {
-    subaccountid: String,
-    zdn: String,
+    pub subaccountid: String,
+    pub zdn: String,
 }
 
 #[derive(Debug)]
@@ -44,7 +44,7 @@ struct KeysUaa {
 
 impl Display for Claims {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Email: {}\n", self.sub)
+        writeln!(f, "Email: {}", self.sub)
     }
 }
 
@@ -126,10 +126,7 @@ pub async fn get_public_uaa_pem() -> String {
 
     // Get the response body bytes.
     let body_bytes = hyper::body::to_bytes(resp.into_body()).await.unwrap();
-
     let string = &String::from_utf8(body_bytes.to_vec()).unwrap();
-
-    let uaa_response: UaaResponse = serde_json::from_str(&string).unwrap();
-
+    let uaa_response: UaaResponse = serde_json::from_str(string).unwrap();
     uaa_response.keys[0].value.to_string()
 }

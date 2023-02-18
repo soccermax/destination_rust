@@ -14,7 +14,7 @@ impl AppContext {
                 let pem = super::auth::get_public_uaa_pem().await;
                 let copy = pem.to_string();
                 self.uaa_public_cert = Some(pem);
-                copy.to_string()
+                copy
             }
         }
     }
