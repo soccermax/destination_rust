@@ -1,12 +1,23 @@
 use crate::handler::destination;
 use axum::{
-    routing::{get, post},
+    routing::{delete, get, post},
     Router,
 };
 
-pub fn initialize() -> Router {
+use crate::db::client;
+
+pub async fn initialize() -> Router {
+    let connection_manager = client::create_connection_manager().await.unwrap();
+
     // build our application with a route
     Router::new()
-        .route("/", get(destination::root))
-        .route("/users", post(destination::create_destination))
+        .route("/destination", get(destination::get_all))
+        .route("/destination", post(destination::create))
+        .route("/destination/:destination_name", get(destination::get))
+        .route("/v2/destination/:destination_name", get(destination::getV2))
+        .route(
+            "/destination/:destination_name",
+            delete(destination::delete),
+        )
+        .with_state(connection_manager)
 }

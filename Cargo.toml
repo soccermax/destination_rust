@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-redis = "0.22.3"
+redis = {version = "0.22.3", features = ["aio", "tokio-comp", "connection-manager"]}
 serde = { version = "1.0.152", features = ["derive"] }
 tokio = { version = "1.24.2", features = ["full"] }
 futures-util = "0.3.25"
@@ -16,3 +16,8 @@ axum = "0.6.1"
 uuid = { version = "1.2.2", features = ["v4"]  }
 anyhow = "1.0.68"
 thiserror = "1.0.38"
+
+[dev-dependencies]
+tower = "0.4.13"
+hyper = "0.14.24"
+mockall = "0.11.3"

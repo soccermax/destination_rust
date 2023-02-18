@@ -2,8 +2,10 @@ use redis::RedisError;
 
 #[derive(Debug)]
 pub enum DbError {
-    NotReachable {},
+    NotReachable,
     AlreadyExists { name: String },
+    NotFound,
+    Conflict,
 }
 
 impl From<RedisError> for DbError {
