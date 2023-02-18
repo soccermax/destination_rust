@@ -1,33 +1,40 @@
-use axum::{http::StatusCode, response::IntoResponse, Json};
+use axum::{extract::Path, extract::State, http::StatusCode, response::IntoResponse, Json};
 
 use crate::db::destination;
 use crate::handler::error;
 use crate::model::destination::Destination;
 
-// basic handler that responds with a static string
-pub async fn root() -> &'static str {
-    "Hello, World!"
+pub async fn get_all() -> Result<impl IntoResponse, error::ApirError> {
+    let destinations = destination::get_all()?;
+    Ok((StatusCode::OK, Json(destinations)))
 }
 
-pub async fn create_destination(
-    // this argument tells axum to parse the request body
-    // as JSON into a `CreateUser` type
+pub async fn create(
     Json(payload): Json<Destination>,
-    // ) -> impl IntoResponse {
 ) -> Result<impl IntoResponse, error::ApirError> {
-    let destination = Destination {
-        id: None,
-        name: payload.name,
-        protocol: payload.protocol,
-        port: payload.port,
-        url: payload.url,
-        authentication: payload.authentication,
-    };
+    let new_destination = destination::create(payload)?;
+    Ok((StatusCode::CREATED, Json(new_destination)))
+}
 
-    let create_des_result = destination::create_destination(destination);
+pub async fn get(
+    State(connection_manager): State<redis::aio::ConnectionManager>,
+    Path(destination_name): Path<String>,
+) -> Result<impl IntoResponse, error::ApirError> {
+    let destination = destination::getV2(connection_manager, destination_name).await?;
+    Ok((StatusCode::CREATED, Json(destination)))
+}
 
-    match create_des_result {
-        Ok(new_destination) => Ok((StatusCode::CREATED, Json(new_destination))),
-        Err(err) => Err(err.into()),
-    }
+pub async fn getV2(
+    State(connection_manager): State<redis::aio::ConnectionManager>,
+    Path(destination_name): Path<String>,
+) -> Result<impl IntoResponse, error::ApirError> {
+    let destination = destination::getV2(connection_manager, destination_name).await?;
+    Ok((StatusCode::CREATED, Json(destination)))
+}
+
+pub async fn delete(
+    Path(destination_name): Path<String>,
+) -> Result<impl IntoResponse, error::ApirError> {
+    destination::delete(destination_name)?;
+    Ok(StatusCode::NO_CONTENT)
 }
