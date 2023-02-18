@@ -8,6 +8,11 @@ use crate::db::client;
 
 pub async fn initialize() -> Router {
     let connection_manager = client::create_connection_manager().await.unwrap();
+    let mut state = crate::auth::app_context::AppContext {
+        connection_manager,
+        uaa_public_cert: None,
+    };
+    state.get_uaa_public_cert().await;
 
     // build our application with a route
     Router::new()
@@ -22,5 +27,6 @@ pub async fn initialize() -> Router {
             "/destination/:destination_name",
             delete(destination::delete),
         )
-        .with_state(connection_manager)
+        .route("/auth/destination", get(destination::get_all_auth))
+        .with_state(state)
 }

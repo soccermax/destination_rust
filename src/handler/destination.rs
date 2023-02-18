@@ -6,10 +6,19 @@ use axum::{
 };
 
 use super::error;
+use crate::auth;
 use crate::db::destination;
 use crate::model::Destination;
 
 pub async fn get_all() -> Result<impl IntoResponse, error::ApirError> {
+    let destinations = destination::get_all()?;
+    Ok((StatusCode::OK, Json(destinations)))
+}
+
+pub async fn get_all_auth(
+    _state: State<auth::app_context::AppContext>,
+    _claims: auth::auth::Claims,
+) -> Result<impl IntoResponse, error::ApirError> {
     let destinations = destination::get_all()?;
     Ok((StatusCode::OK, Json(destinations)))
 }
@@ -22,18 +31,18 @@ pub async fn create(
 }
 
 pub async fn get(
-    State(connection_manager): State<redis::aio::ConnectionManager>,
+    State(state): State<auth::app_context::AppContext>,
     Path(destination_name): Path<String>,
 ) -> Result<impl IntoResponse, error::ApirError> {
-    let destination = destination::get(connection_manager, destination_name).await?;
+    let destination = destination::get(state.connection_manager, destination_name).await?;
     Ok((StatusCode::CREATED, Json(destination)))
 }
 
 pub async fn get_v2(
-    State(connection_manager): State<redis::aio::ConnectionManager>,
+    State(state): State<auth::app_context::AppContext>,
     Path(destination_name): Path<String>,
 ) -> Result<impl IntoResponse, error::ApirError> {
-    let destination = destination::get(connection_manager, destination_name).await?;
+    let destination = destination::get(state.connection_manager, destination_name).await?;
     Ok((StatusCode::OK, Json(destination)))
 }
 
