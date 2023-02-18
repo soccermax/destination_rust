@@ -111,7 +111,7 @@ mod test {
     // }
 
     async fn start_and_cleanup() -> Router {
-        let mut app = router::initialize();
+        let mut app = router::initialize().await;
         let req = Request::builder()
             .uri("/destination")
             .body(Body::empty())

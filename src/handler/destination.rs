@@ -25,15 +25,15 @@ pub async fn get(
     State(connection_manager): State<redis::aio::ConnectionManager>,
     Path(destination_name): Path<String>,
 ) -> Result<impl IntoResponse, error::ApirError> {
-    let destination = destination::getV2(connection_manager, destination_name).await?;
+    let destination = destination::get(connection_manager, destination_name).await?;
     Ok((StatusCode::CREATED, Json(destination)))
 }
 
-pub async fn getV2(
+pub async fn get_v2(
     State(connection_manager): State<redis::aio::ConnectionManager>,
     Path(destination_name): Path<String>,
 ) -> Result<impl IntoResponse, error::ApirError> {
-    let destination = destination::getV2(connection_manager, destination_name).await?;
+    let destination = destination::get(connection_manager, destination_name).await?;
     Ok((StatusCode::CREATED, Json(destination)))
 }
 

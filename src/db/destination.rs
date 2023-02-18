@@ -1,10 +1,11 @@
 use super::create_client;
 use super::error;
-use crate::model::{Authentication, Destination, Protocol};
 use redis::{AsyncCommands, Commands};
 use serde_json::{Map, Value};
 use std::string::ToString;
 use uuid::Uuid;
+
+use crate::model::destination::Destination;
 
 pub fn create(mut new_destination: Destination) -> Result<Destination, error::DbError> {
     let mut connection = create_client()?;
@@ -103,19 +104,7 @@ pub fn get_all() -> Result<Vec<Destination>, error::DbError> {
     Ok(destinations)
 }
 
-pub fn get(name: String) -> Result<Destination, error::DbError> {
-    let mut connection = create_client()?;
-    let mut all_destinations = get_all_map(&mut connection)?;
-    match all_destinations.remove(&name) {
-        Some(destination) => {
-            let test: Destination = serde_json::from_value(destination).unwrap();
-            Ok(test)
-        }
-        None => Err(error::DbError::NotFound),
-    }
-}
-
-pub async fn getV2(
+pub async fn get(
     mut connection_manager: redis::aio::ConnectionManager,
     name: String,
 ) -> Result<Destination, error::DbError> {

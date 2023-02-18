@@ -14,7 +14,10 @@ pub async fn initialize() -> Router {
         .route("/destination", get(destination::get_all))
         .route("/destination", post(destination::create))
         .route("/destination/:destination_name", get(destination::get))
-        .route("/v2/destination/:destination_name", get(destination::getV2))
+        .route(
+            "/v2/destination/:destination_name",
+            get(destination::get_v2),
+        )
         .route(
             "/destination/:destination_name",
             delete(destination::delete),
