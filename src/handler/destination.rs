@@ -1,8 +1,13 @@
-use axum::{extract::Path, extract::State, http::StatusCode, response::IntoResponse, Json};
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+    response::IntoResponse,
+    Json,
+};
 
+use super::error;
 use crate::db::destination;
-use crate::handler::error;
-use crate::model::destination::Destination;
+use crate::model::Destination;
 
 pub async fn get_all() -> Result<impl IntoResponse, error::ApirError> {
     let destinations = destination::get_all()?;
@@ -20,15 +25,15 @@ pub async fn get(
     State(connection_manager): State<redis::aio::ConnectionManager>,
     Path(destination_name): Path<String>,
 ) -> Result<impl IntoResponse, error::ApirError> {
-    let destination = destination::getV2(connection_manager, destination_name).await?;
+    let destination = destination::get(connection_manager, destination_name).await?;
     Ok((StatusCode::CREATED, Json(destination)))
 }
 
-pub async fn getV2(
+pub async fn get_v2(
     State(connection_manager): State<redis::aio::ConnectionManager>,
     Path(destination_name): Path<String>,
 ) -> Result<impl IntoResponse, error::ApirError> {
-    let destination = destination::getV2(connection_manager, destination_name).await?;
+    let destination = destination::get(connection_manager, destination_name).await?;
     Ok((StatusCode::CREATED, Json(destination)))
 }
 
