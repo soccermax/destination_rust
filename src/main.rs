@@ -27,7 +27,6 @@ mod test {
         http::{self, Request, StatusCode},
         Router,
     };
-    use redis::Value;
     use serde_json::json;
     use tower::Service; // for `call`
     use tower::ServiceExt; // for `oneshot` and `ready`
@@ -104,6 +103,31 @@ mod test {
             serde_json::from_str(&String::from_utf8(body.to_vec()).unwrap()).unwrap();
         assert_eq!(destinations.len(), 1);
         assert_eq!(destinations[0].name, String::from("max99"));
+    }
+
+    #[tokio::test]
+    async fn get_destination_v2() {
+        let mut app = start_and_cleanup().await;
+        let req_create = Request::builder()
+            .method(http::Method::POST)
+            .header(http::header::CONTENT_TYPE, String::from("Application/JSON"))
+            .uri("/destination")
+            .body(Body::from(get_dummy_create_payload()))
+            .unwrap();
+        app.ready().await.unwrap().call(req_create).await.unwrap();
+
+        let req_get = Request::builder()
+            .method(http::Method::GET)
+            .uri("/v2/destination/max99")
+            .body(Body::empty())
+            .unwrap();
+        let response = app.ready().await.unwrap().call(req_get).await.unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
+        let destination: Destination =
+            serde_json::from_str(&String::from_utf8(body.to_vec()).unwrap()).unwrap();
+        assert_eq!(destination.name, String::from("max99"));
     }
 
     // async fn exec_request(&app: &mut Router, request: Request<Body>) -> Response {

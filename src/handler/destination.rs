@@ -34,7 +34,7 @@ pub async fn get_v2(
     Path(destination_name): Path<String>,
 ) -> Result<impl IntoResponse, error::ApirError> {
     let destination = destination::get(connection_manager, destination_name).await?;
-    Ok((StatusCode::CREATED, Json(destination)))
+    Ok((StatusCode::OK, Json(destination)))
 }
 
 pub async fn delete(
