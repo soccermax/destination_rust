@@ -2,6 +2,7 @@ extern crate core;
 
 use std::net::SocketAddr;
 
+mod auth;
 mod db;
 mod handler;
 mod model;

@@ -1,10 +1,12 @@
 use super::create_client;
 use super::error;
+use axum::extract::State;
 use redis::{AsyncCommands, Commands};
 use serde_json::{Map, Value};
 use std::string::ToString;
 use uuid::Uuid;
 
+use crate::auth::app_context::AppContext;
 use crate::model::destination::Destination;
 
 pub fn create(mut new_destination: Destination) -> Result<Destination, error::DbError> {
@@ -94,9 +96,10 @@ async fn get_all_map_async(
     Ok(map)
 }
 
-pub fn get_all() -> Result<Vec<Destination>, error::DbError> {
-    let mut connection = create_client()?;
-    let map = get_all_map(&mut connection)?;
+pub async fn get_all(
+    mut app_context: State<AppContext>,
+) -> Result<Vec<Destination>, error::DbError> {
+    let map = get_all_map_async(&mut app_context.connection_manager).await?;
     let destinations = map
         .iter()
         .map(|(_, value)| serde_json::from_value(value.clone()).unwrap())

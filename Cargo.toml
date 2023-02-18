@@ -12,12 +12,14 @@ tokio = { version = "1.24.2", features = ["full"] }
 futures-util = "0.3.25"
 json = "0.12.4"
 serde_json = "1.0.91"
-axum = "0.6.1"
+axum = { version = "0.6.1", features = ["headers"] }
+jsonwebtoken = "8.0"
 uuid = { version = "1.2.2", features = ["v4"]  }
 anyhow = "1.0.68"
 thiserror = "1.0.38"
+hyper = { version = "0.14.24", features = ["client"] }
+hyper-tls = "0.5.0"
 
 [dev-dependencies]
 tower = "0.4.13"
-hyper = "0.14.24"
 mockall = "0.11.3"
